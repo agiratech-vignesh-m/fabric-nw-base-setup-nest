@@ -1,0 +1,15 @@
+success:
+  user:
+    registered: 'User registered successfully'
+    profileCreated: 'User Profile created successfully'
+  admin:
+      created: 'Admin created successfully'
+error:
+  standardError: 'Something went wrong, please try again later'
+  admin:
+    alreadyExists: 'Admin with ID already exist'
+    identityNotFound: 'An identity for the admin user does not exist, Enroll the admin user first'
+  user:
+    alreadyExists: 'User with ID already exist'
+    saveFailed: 'Failed to store user in Database'
+    dataNotFound: 'User data not found in Database'

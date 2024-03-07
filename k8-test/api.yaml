@@ -1,0 +1,75 @@
+apiVersion: apps/v1
+kind: Deployment
+metadata:
+  name: testingapi
+spec:
+  replicas: 1
+  selector:
+    matchLabels:
+      name: testingapi
+  template:
+    metadata:
+      labels:
+        name: testingapi
+    spec:
+      volumes:
+        - name: data
+          persistentVolumeClaim:
+            claimName: mypvc
+        - name: ca-client-config
+          configMap:
+            name: ca-client-config
+            items:
+              - key: config.json
+                path: config.json
+                mode: 0544
+      containers:
+        - name: testingapi
+          stdin: true
+          tty: true
+          resources:
+            limits:
+              memory: "450Mi"
+              cpu: "400m"
+            requests:
+              memory: "400Mi"
+              cpu: "300m"    
+          image: aticdeveloper/fhtg:api-6.0
+          ports:
+            - containerPort: 3000
+          imagePullPolicy: Always
+          # envFrom:
+          #   - configMapRef:
+          #       name: testingapi-variables
+          volumeMounts:
+            - name: data
+              mountPath: /backend/api/connection-profile
+              subPath: connection-profile
+            - name: data
+              mountPath: /organizations
+              subPath: organizations
+            - name: data
+              mountPath: /backend/api/wallet
+              subPath: wallet
+            - mountPath: /backend/api/config.json
+              name: ca-client-config
+              subPath: config.json 
+      imagePullSecrets:
+      - name: regcred 
+
+
+---
+apiVersion: v1
+kind: Service
+metadata:
+  labels:
+    app: testingapi
+  name: testingapi
+spec:
+  type: ClusterIP
+  ports:
+  - port: 3000
+    protocol: TCP
+    targetPort: 3000
+  selector:
+    name: testingapi
