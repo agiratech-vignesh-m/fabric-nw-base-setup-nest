@@ -20,6 +20,7 @@ import {
 import { BlockchainException } from 'src/utils/custom_exception.utils';
 import { UserService } from 'src/api/user/user.service';
 import { chainCodeHelpers } from 'src/utils/chaincode.utils';
+import { startEventListening } from 'src/utils/listener.utils';
 
 @Injectable()
 export class FabricConnectMiddleware implements NestMiddleware {
@@ -38,7 +39,7 @@ export class FabricConnectMiddleware implements NestMiddleware {
       const chaincode = chainCodeHelpers[key];
       const { org, admin_Id, user_Id } = req.body;
       let ccp = await this.fabricService.getCCP(org);
-
+      console.log('req.body', req.body);
       let data: any;
       if (req.body && req.body.admin_Id) {
         data = await this.adminService.getAdmin(admin_Id);
@@ -108,10 +109,13 @@ export class FabricConnectMiddleware implements NestMiddleware {
       const contract = network.getContract(chaincode);
 
       (req as any).contract = contract;
+
+      const eventsListener: CloseableAsyncIterable<ChaincodeEvent> | undefined =
+        await startEventListening(chaincode, network);
+      console.log('eventsListener', eventsListener);
       next();
     } catch (error) {
       console.log('FabricConnectMiddleware - Error', error);
-      // return res.status(422).send({ message: err.message, isBlockchainError: true });
       throw new BlockchainException(
         error?.message,
         HttpStatus.UNPROCESSABLE_ENTITY,

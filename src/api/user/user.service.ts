@@ -21,6 +21,7 @@ export class UserService {
   ) {}
 
   async getUser(query: any): Promise<any> {
+    console.log("query", query)
     try {
       const user = await this.web3UsersTestRepository.findOne({
         where: query,

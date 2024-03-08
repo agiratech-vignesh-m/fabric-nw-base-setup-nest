@@ -36,7 +36,7 @@ export class UserController {
     const org = body.org;
     const id = body.user_Id;
     try {
-      const validate = await this.userService.getUser(id);
+      const validate = await this.userService.getUser({user_Id: id});
       if (validate) {
         throw new Error(error?.user.alreadyExists);
       }
