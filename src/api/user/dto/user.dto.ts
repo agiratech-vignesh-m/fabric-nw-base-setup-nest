@@ -32,9 +32,19 @@ export class ProfileDto {
   @IsString({ message: 'Org must be a valid string' })
   org: string;
 
-  @IsNotEmpty({ message: 'User Id is required' })
+  // @IsNotEmpty({ message: 'User Id is required' })
+  // @IsString({ message: 'User ID should be a string' })
+  // user_Id: string;
+  
+  @IsOptional()
+  @IsEitherUserOrAdminId()
   @IsString({ message: 'User ID should be a string' })
-  user_Id: string;
+  user_Id?: string;
+
+  @IsOptional()
+  @IsEitherUserOrAdminId()
+  @IsString({ message: 'Admin ID should be a string' })
+  admin_Id?: string;
 
   @IsNotEmpty({ message: 'First name is required' })
   @IsString({ message: 'First name should be a string' })

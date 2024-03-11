@@ -39,12 +39,14 @@ export class FabricConnectMiddleware implements NestMiddleware {
       const chaincode = chainCodeHelpers[key];
       const { org, admin_Id, user_Id } = req.body;
       let ccp = await this.fabricService.getCCP(org);
-      console.log('req.body', req.body);
       let data: any;
+      let details: any
       if (req.body && req.body.admin_Id) {
-        data = await this.adminService.getAdmin(admin_Id);
+        data = await this.adminService.getAdmin({admin_Id: admin_Id});
+        details = JSON.parse(data.admin_data);
       } else {
         data = await this.userService.getUser({ user_Id: user_Id });
+        details = JSON.parse(data.user_data);
       }
 
       if (!data) {
@@ -91,12 +93,10 @@ export class FabricConnectMiddleware implements NestMiddleware {
         Buffer.from(tlsCertContent),
       );
 
-      const details = JSON.parse(data.user_data);
-
       const mspId = details.mspId;
       const certificate = details.credentials.certificate;
       const privateKey = details.credentials.privateKey;
-
+      console.log("details", details)
       const connectOptions = await this.fabricService.newConnectOptions(
         client,
         mspId,

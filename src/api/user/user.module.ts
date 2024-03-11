@@ -34,7 +34,7 @@ export class UserModule implements NestModule {
       },
       {
         path: 'user/get_user',
-          method: RequestMethod.GET,
+          method: RequestMethod.POST,
           version: '1',
       },
       {

@@ -105,17 +105,19 @@ export class UserService {
       const admin_secret = this.configService.get<IAdminConfig>('admin').secret;
       const adminUserKey = `${org}Admin`;
 
-      const admin_Identity = await this.adminService.getAdmin(adminUserKey);
+      const admin_Identity = await this.adminService.getAdmin({admin_Id: adminUserKey});
+      const admin_credentials = JSON.parse(admin_Identity.admin_data);
 
       if (!admin_Identity) {
         throw new Error(error?.admin?.identityNotFound);
       }
+
       const adminUser = User.createUser(
         admin_Id,
         admin_secret,
-        admin_Identity.mspId,
-        admin_Identity.certificate,
-        admin_Identity.privateKey,
+        admin_credentials.mspId,
+        admin_credentials.credentials.certificate,
+        admin_credentials.credentials.privateKey,
       );
 
       const secret = await caClient.register(

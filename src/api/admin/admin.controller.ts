@@ -8,7 +8,7 @@ import {
   HttpException,
 } from '@nestjs/common';
 import { AdminService } from './admin.service';
-import { CreateAdminDto } from './dto/create-admin.dto';
+import { CreateAdminDto, GetAdminDto } from './dto/create-admin.dto';
 import { FabricService } from '../fabric/fabric.service';
 import { encrypt } from 'src/utils/crypto.utils';
 import { BlockchainException } from 'src/utils/custom_exception.utils';
@@ -74,10 +74,11 @@ export class AdminController {
     }
   }
 
-  @Get('/')
-  getAdmin(@Query('admin_Id') admin_Id: string) {
+  @Post('getAdmin')
+  getAdmin(
+    @Body() body: GetAdminDto) {
     try {
-      return this.adminService.getAdmin(admin_Id);
+      return this.adminService.getAdmin({admin_Id: body.admin_Id});
     } catch (error) {
       console.log('error', error);
       throw new BlockchainException(

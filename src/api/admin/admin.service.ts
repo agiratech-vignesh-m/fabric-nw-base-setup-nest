@@ -10,17 +10,14 @@ import { error } from 'src/config/yaml.config';
 export class AdminService {
   constructor(
     @InjectRepository(WEB3AdminsTest)
-    private readonly adminTest: Repository<WEB3AdminsTest>,
+    private readonly web3adminTestRepository: Repository<WEB3AdminsTest>,
   ) {}
 
   async getAdmin(query: any): Promise<any> {
     try {
-      const findOptions: FindOneOptions<WEB3AdminsTest> = {
-        where: { admin_Id: query },
-        // Other options like relations, order, etc. can be added here
-      };
-
-      const admin = await this.adminTest.findOne(findOptions);
+      const admin = await this.web3adminTestRepository.findOne({
+        where: query,
+      });
       if (admin) {
         const data = JSON.parse(admin.admin_data);
         const certificateTemp = data.credentials.certificate;
@@ -28,15 +25,11 @@ export class AdminService {
 
         const privateKeyTemp = data.credentials.privateKey;
         const adminprivateKeyDecrypt = decrypt(privateKeyTemp);
+        data.credentials.certificate = adminCertificateDecrypt;
+        data.credentials.privateKey = adminprivateKeyDecrypt;
 
-        // Decrypt data if necessary
-        const decryptedData = {
-          certificate: adminCertificateDecrypt,
-          privateKey: adminprivateKeyDecrypt,
-          mspId: data.mspId,
-          type: data.type,
-        };
-        return decryptedData;
+        admin.admin_data = JSON.stringify(data);
+        return admin;
       } else {
         return null;
       }
@@ -51,13 +44,13 @@ export class AdminService {
       const admin_key = `${org}Admin`;
       const adminDataString = JSON.stringify(x509Identity);
 
-      const data = this.adminTest.create({
+      const data = this.web3adminTestRepository.create({
         org: org,
         admin_Id: admin_key,
         admin_data: adminDataString,
       });
 
-      const save = await this.adminTest.save(data);
+      const save = await this.web3adminTestRepository.save(data);
       if (!save) {
         throw new Error(error?.user?.saveFailed);
       }
@@ -67,20 +60,4 @@ export class AdminService {
       throw new Error(error.errors?.[0]?.message || error.message);
     }
   }
-
-  // findAll() {
-  //   return `This action returns all admin`;
-  // }
-
-  // findOne(id: number) {
-  //   return `This action returns a #${id} admin`;
-  // }
-
-  // update(id: number, updateAdminDto: UpdateAdminDto) {
-  //   return `This action updates a #${id} admin`;
-  // }
-
-  // remove(id: number) {
-  //   return `This action removes a #${id} admin`;
-  // }
 }
